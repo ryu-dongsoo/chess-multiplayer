@@ -4671,83 +4671,7 @@ document.addEventListener('DOMContentLoaded', function() {
             invincible: false,
             invincibleTime: 0
         };
-        // 적 동작 업데이트 함수
-function updateEnemies() {
-    enemies.forEach(enemy => {
-        switch (enemy.type) {
-            case 'goomba': // 굼바: 좌우 이동
-                enemy.x += enemy.vx;
-                break;
-            case 'koopa': // 쿠파: 좌우 이동
-                enemy.x += enemy.vx;
-                break;
-            case 'fire': // 파이어: 좌우로 빠르게 이동
-                enemy.x += enemy.vx * 2;
-                break;
-            case 'piranha': // 바바: 위아래로 움직임
-                enemy.y += Math.sin(Date.now() * 0.01 + enemy.x) * 0.5;
-                break;
-            case 'piranhaflower': // 뻐끔플라워: 위아래로 천천히
-                enemy.y += Math.sin(Date.now() * 0.008 + enemy.x) * 0.3;
-                break;
-            case 'bobomb': // 뽀꾸: 마리오를 향해 걷기
-                if (mario.x > enemy.x) enemy.x += 0.7;
-                else if (mario.x < enemy.x) enemy.x -= 0.7;
-                break;
-            case 'skeleton': // 해골병사: 좌우 이동, 죽으면 일정 시간 후 부활
-                enemy.x += enemy.vx;
-                if (enemy.dead) {
-                    enemy.reviveTimer = (enemy.reviveTimer || 120) - 1;
-                    if (enemy.reviveTimer <= 0) {
-                        enemy.dead = false;
-                        enemy.reviveTimer = 120;
-                    }
-                }
-                break;
-            case 'kinopio': // 키노피오: 마리오를 따라다님
-                if (mario.x > enemy.x + 30) enemy.x += 0.5;
-                else if (mario.x < enemy.x - 30) enemy.x -= 0.5;
-                break;
-        }
-        // 플랫폼 경계에서 방향 전환
-        platforms.forEach(platform => {
-            if (enemy.x <= platform.x || enemy.x + enemy.width >= platform.x + platform.width) {
-                if (enemy.vx) enemy.vx *= -1;
-            }
-        });
-        // 마리오와 충돌 체크
-        if (!enemy.dead && checkCollision(mario, enemy) && !mario.invincible) {
-            if (powerState === 'small') {
-                lives--;
-                if (lives <= 0) {
-                    gameRunning = false;
-                    alert('게임 오버! 점수: ' + score);
-                } else {
-                    mario.invincible = true;
-                    mario.invincibleTime = 120;
-                    powerState = 'small';
-                }
-            } else {
-                powerState = 'small';
-                mario.invincible = true;
-                mario.invincibleTime = 120;
-            }
-        }
-    });
-}
-
-// 메인 게임 루프
-function gameLoop() {
-    if (!gameRunning) return;
-    // ... 기존 게임 업데이트 코드 ...
-    updateEnemies(); // 적 업데이트
-    // ... 기존 렌더링 코드 ...
-    requestAnimationFrame(gameLoop);
-}
-
-// 게임 시작 시 루프 시작
-gameRunning = true;
-gameLoop();
+        
         // 게임 오브젝트들
         let platforms = [];
         let enemies = [];
@@ -4763,194 +4687,90 @@ gameLoop();
         let jumpPower = -12;
         let maxSpeed = 5;
         
-        // 스테이지 데이터
-        const stages = {
-            1: {
-                1: { // 1-1: Classic Mario World
-                    platforms: [
-                        { x: 0, y: 450, width: 800, height: 50 }, // 바닥
-                        { x: 100, y: 350, width: 80, height: 20 },
-                        { x: 250, y: 300, width: 60, height: 20 },
-                        { x: 400, y: 250, width: 100, height: 20 },
-                        { x: 600, y: 200, width: 80, height: 20 },
-                        { x: 700, y: 150, width: 100, height: 20 }
-                    ],
-                    enemies: [
-                        { x: 150, y: 320, width: 20, height: 20, vx: -1, type: 'goomba' },
-                        { x: 300, y: 270, width: 20, height: 20, vx: 1, type: 'koopa' },
-                        { x: 450, y: 220, width: 20, height: 20, vx: -1, type: 'goomba' },
-                        { x: 650, y: 170, width: 20, height: 20, vx: 1, type: 'koopa' }
-                    ],
-                    coins: [
-                        { x: 120, y: 320, width: 15, height: 15, collected: false },
-                        { x: 270, y: 270, width: 15, height: 15, collected: false },
-                        { x: 420, y: 220, width: 15, height: 15, collected: false },
-                        { x: 620, y: 170, width: 15, height: 15, collected: false }
-                    ],
-                    powerUps: [
-                        { x: 150, y: 320, width: 20, height: 20, type: 'mushroom', collected: false },
-                        { x: 350, y: 220, width: 20, height: 20, type: 'flower', collected: false }
-                    ],
-                    stars: [
-                        { x: 250, y: 270, width: 20, height: 20, collected: false }
-                    ],
-                    luckyBlocks: [
-                        { x: 200, y: 170, width: 20, height: 20, hit: false, content: 'coin' },
-                        { x: 500, y: 120, width: 20, height: 20, hit: false, content: 'mushroom' }
-                    ],
-                    flags: [
-                        { x: 750, y: 200, width: 10, height: 200, reached: false }
-                    ]
-                },
-                2: { // 1-2: Underground
-                    platforms: [
-                        { x: 0, y: 450, width: 800, height: 50 },
-                        { x: 50, y: 350, width: 100, height: 20 },
-                        { x: 200, y: 300, width: 80, height: 20 },
-                        { x: 350, y: 250, width: 120, height: 20 },
-                        { x: 500, y: 200, width: 100, height: 20 },
-                        { x: 650, y: 150, width: 80, height: 20 }
-                    ],
-                    enemies: [
-                        { x: 100, y: 320, width: 20, height: 20, vx: -1, type: 'goomba' },
-                        { x: 250, y: 270, width: 20, height: 20, vx: 1, type: 'koopa' },
-                        { x: 400, y: 220, width: 20, height: 20, vx: -1, type: 'piranha' },
-                        { x: 550, y: 170, width: 20, height: 20, vx: 1, type: 'fire' },
-                        { x: 700, y: 120, width: 20, height: 20, vx: -1, type: 'goomba' }
-                    ],
-                    coins: [
-                        { x: 70, y: 320, width: 15, height: 15, collected: false },
-                        { x: 220, y: 270, width: 15, height: 15, collected: false },
-                        { x: 370, y: 220, width: 15, height: 15, collected: false },
-                        { x: 520, y: 170, width: 15, height: 15, collected: false }
-                    ],
-                    powerUps: [
-                        { x: 200, y: 270, width: 20, height: 20, type: 'mushroom', collected: false },
-                        { x: 450, y: 170, width: 20, height: 20, type: 'flower', collected: false }
-                    ],
-                    stars: [
-                        { x: 300, y: 220, width: 20, height: 20, collected: false }
-                    ],
-                    luckyBlocks: [
-                        { x: 150, y: 170, width: 20, height: 20, hit: false, content: 'coin' },
-                        { x: 400, y: 120, width: 20, height: 20, hit: false, content: 'mushroom' }
-                    ],
-                    flags: [
-                        { x: 750, y: 200, width: 10, height: 200, reached: false }
-                    ]
-                },
-                3: { // 1-3: Castle
-                    platforms: [
-                        { x: 0, y: 450, width: 800, height: 50 },
-                        { x: 80, y: 350, width: 60, height: 20 },
-                        { x: 200, y: 300, width: 80, height: 20 },
-                        { x: 350, y: 250, width: 100, height: 20 },
-                        { x: 500, y: 200, width: 80, height: 20 },
-                        { x: 650, y: 150, width: 100, height: 20 }
-                    ],
-                    enemies: [
-                        { x: 120, y: 320, width: 20, height: 20, vx: -1, type: 'goomba' },
-                        { x: 250, y: 270, width: 20, height: 20, vx: 1, type: 'koopa' },
-                        { x: 400, y: 220, width: 20, height: 20, vx: -1, type: 'bobomb' },
-                        { x: 550, y: 170, width: 20, height: 20, vx: 1, type: 'skeleton' },
-                        { x: 700, y: 120, width: 20, height: 20, vx: -1, type: 'goomba' }
-                    ],
-                    coins: [
-                        { x: 100, y: 320, width: 15, height: 15, collected: false },
-                        { x: 220, y: 270, width: 15, height: 15, collected: false },
-                        { x: 370, y: 220, width: 15, height: 15, collected: false },
-                        { x: 520, y: 170, width: 15, height: 15, collected: false }
-                    ],
-                    powerUps: [
-                        { x: 150, y: 270, width: 20, height: 20, type: 'mushroom', collected: false },
-                        { x: 450, y: 170, width: 20, height: 20, type: 'flower', collected: false }
-                    ],
-                    stars: [
-                        { x: 300, y: 220, width: 20, height: 20, collected: false }
-                    ],
-                    luckyBlocks: [
-                        { x: 180, y: 170, width: 20, height: 20, hit: false, content: 'coin' },
-                        { x: 450, y: 120, width: 20, height: 20, hit: false, content: 'mushroom' }
-                    ],
-                    flags: [
-                        { x: 750, y: 200, width: 10, height: 200, reached: false }
-                    ]
+        // 충돌 체크 함수
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width &&
+                   obj1.x + obj1.width > obj2.x &&
+                   obj1.y < obj2.y + obj2.height &&
+                   obj1.y + obj1.height > obj2.y;
+        }
+        
+        // 적 동작 업데이트 함수
+        function updateEnemies() {
+            enemies.forEach(enemy => {
+                switch (enemy.type) {
+                    case 'goomba': // 굼바: 좌우 이동
+                        enemy.x += enemy.vx;
+                        break;
+                    case 'koopa': // 쿠파: 좌우 이동
+                        enemy.x += enemy.vx;
+                        break;
+                    case 'fire': // 파이어: 좌우로 빠르게 이동
+                        enemy.x += enemy.vx * 2;
+                        break;
+                    case 'piranha': // 바바: 위아래로 움직임
+                        enemy.y += Math.sin(Date.now() * 0.01 + enemy.x) * 0.5;
+                        break;
+                    case 'piranhaflower': // 뻐끔플라워: 위아래로 천천히
+                        enemy.y += Math.sin(Date.now() * 0.008 + enemy.x) * 0.3;
+                        break;
+                    case 'bobomb': // 뽀꾸: 마리오를 향해 걷기
+                        if (mario.x > enemy.x) enemy.x += 0.7;
+                        else if (mario.x < enemy.x) enemy.x -= 0.7;
+                        break;
+                    case 'skeleton': // 해골병사: 좌우 이동, 죽으면 일정 시간 후 부활
+                        enemy.x += enemy.vx;
+                        if (enemy.dead) {
+                            enemy.reviveTimer = (enemy.reviveTimer || 120) - 1;
+                            if (enemy.reviveTimer <= 0) {
+                                enemy.dead = false;
+                                enemy.reviveTimer = 120;
+                            }
+                        }
+                        break;
+                    case 'kinopio': // 키노피오: 마리오를 따라다님
+                        if (mario.x > enemy.x + 30) enemy.x += 0.5;
+                        else if (mario.x < enemy.x - 30) enemy.x -= 0.5;
+                        break;
                 }
-            },
-            2: {
-                1: { // 2-1: Desert
-                    platforms: [
-                        { x: 0, y: 450, width: 800, height: 50 },
-                        { x: 100, y: 350, width: 80, height: 20 },
-                        { x: 250, y: 300, width: 100, height: 20 },
-                        { x: 400, y: 250, width: 80, height: 20 },
-                        { x: 550, y: 200, width: 100, height: 20 },
-                        { x: 700, y: 150, width: 80, height: 20 }
-                    ],
-                    enemies: [
-                        { x: 150, y: 320, width: 20, height: 20, vx: -1, type: 'goomba' },
-                        { x: 300, y: 270, width: 20, height: 20, vx: 1, type: 'koopa' },
-                        { x: 450, y: 220, width: 20, height: 20, vx: -1, type: 'piranhaflower' },
-                        { x: 600, y: 170, width: 20, height: 20, vx: 1, type: 'fire' }
-                    ],
-                    coins: [
-                        { x: 120, y: 320, width: 15, height: 15, collected: false },
-                        { x: 270, y: 270, width: 15, height: 15, collected: false },
-                        { x: 420, y: 220, width: 15, height: 15, collected: false },
-                        { x: 570, y: 170, width: 15, height: 15, collected: false }
-                    ],
-                    powerUps: [
-                        { x: 200, y: 270, width: 20, height: 20, type: 'mushroom', collected: false },
-                        { x: 450, y: 170, width: 20, height: 20, type: 'flower', collected: false }
-                    ],
-                    stars: [
-                        { x: 350, y: 220, width: 20, height: 20, collected: false }
-                    ],
-                    luckyBlocks: [
-                        { x: 180, y: 170, width: 20, height: 20, hit: false, content: 'coin' },
-                        { x: 500, y: 120, width: 20, height: 20, hit: false, content: 'mushroom' }
-                    ],
-                    flags: [
-                        { x: 750, y: 200, width: 10, height: 200, reached: false }
-                    ]
-                },
-                2: { // 2-2: Forest
-                    platforms: [
-                        { x: 0, y: 450, width: 800, height: 50 },
-                        { x: 80, y: 350, width: 100, height: 20 },
-                        { x: 220, y: 300, width: 80, height: 20 },
-                        { x: 350, y: 250, width: 100, height: 20 },
-                        { x: 500, y: 200, width: 80, height: 20 },
-                        { x: 650, y: 150, width: 100, height: 20 }
-                    ],
-                    enemies: [
-                        { x: 120, y: 320, width: 20, height: 20, vx: -1, type: 'goomba' },
-                        { x: 270, y: 270, width: 20, height: 20, vx: 1, type: 'koopa' },
-                        { x: 400, y: 220, width: 20, height: 20, vx: -1, type: 'kinopio' },
-                        { x: 550, y: 170, width: 20, height: 20, vx: 1, type: 'skeleton' }
-                    ],
-                    coins: [
-                        { x: 100, y: 320, width: 15, height: 15, collected: false },
-                        { x: 240, y: 270, width: 15, height: 15, collected: false },
-                        { x: 370, y: 220, width: 15, height: 15, collected: false },
-                        { x: 520, y: 170, width: 15, height: 15, collected: false }
-                    ],
-                    powerUps: [
-                        { x: 150, y: 270, width: 20, height: 20, type: 'mushroom', collected: false },
-                        { x: 400, y: 170, width: 20, height: 20, type: 'flower', collected: false }
-                    ],
-                    stars: [
-                        { x: 300, y: 220, width: 20, height: 20, collected: false }
-                    ],
-                    luckyBlocks: [
-                        { x: 200, y: 170, width: 20, height: 20, hit: false, content: 'coin' },
-                        { x: 450, y: 120, width: 20, height: 20, hit: false, content: 'mushroom' }
-                    ],
-                    flags: [
-                        { x: 750, y: 200, width: 10, height: 200, reached: false }
-                    ]
+                // 플랫폼 경계에서 방향 전환
+                platforms.forEach(platform => {
+                    if (enemy.x <= platform.x || enemy.x + enemy.width >= platform.x + platform.width) {
+                        if (enemy.vx) enemy.vx *= -1;
+                    }
+                });
+                // 마리오와 충돌 체크
+                if (!enemy.dead && checkCollision(mario, enemy) && !mario.invincible) {
+                    if (powerState === 'small') {
+                        lives--;
+                        if (lives <= 0) {
+                            gameRunning = false;
+                            alert('게임 오버! 점수: ' + score);
+                        } else {
+                            mario.invincible = true;
+                            mario.invincibleTime = 120;
+                            powerState = 'small';
+                        }
+                    } else {
+                        powerState = 'small';
+                        mario.invincible = true;
+                        mario.invincibleTime = 120;
+                    }
                 }
-            }
-        };
+            });
+        }
+
+        // 메인 게임 루프
+        function gameLoop() {
+            if (!gameRunning) return;
+            // ... 기존 게임 업데이트 코드 ...
+            updateEnemies(); // 적 업데이트
+            // ... 기존 렌더링 코드 ...
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 게임 시작 시 루프 시작
+        gameRunning = true;
+        gameLoop();
     }
 }); 
