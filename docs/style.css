@@ -818,6 +818,23 @@ main {
     cursor: pointer;
 }
 
+.modal-text {
+    margin-top: 20px;
+    text-align: left;
+    line-height: 1.6;
+}
+
+.modal-text p {
+    margin: 10px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.modal-text strong {
+    color: #667eea;
+    font-size: 16px;
+}
+
 .pacman-modal .modal-content {
     max-width: 600px;
     padding: 20px;

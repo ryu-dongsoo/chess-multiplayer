@@ -4517,9 +4517,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 팩맨 게임 기능
 document.addEventListener('DOMContentLoaded', function() {
+    const privacyModal = document.getElementById('privacyModal');
+    const termsModal = document.getElementById('termsModal');
     const pacmanModal = document.getElementById('pacmanModal');
+    const privacyLink = document.getElementById('privacyLink');
+    const termsLink = document.getElementById('termsLink');
     const pacmanLink = document.getElementById('pacmanLink');
-    const closeBtn = document.querySelector('.close');
+    const closeBtns = document.querySelectorAll('.close');
+
+    // 개인정보 처리방침 링크 클릭 이벤트
+    privacyLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        privacyModal.style.display = 'block';
+    });
+
+    // 이용약관 링크 클릭 이벤트
+    termsLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        termsModal.style.display = 'block';
+    });
 
     // 팩맨 링크 클릭 이벤트
     pacmanLink.addEventListener('click', function(e) {
@@ -4528,22 +4544,28 @@ document.addEventListener('DOMContentLoaded', function() {
         initPacmanGame();
     });
 
-    // 모달 닫기 버튼
-    closeBtn.addEventListener('click', function() {
-        pacmanModal.style.display = 'none';
+    // 모달 닫기 버튼들
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            modal.style.display = 'none';
+        });
     });
 
     // 모달 외부 클릭시 닫기
     window.addEventListener('click', function(e) {
-        if (e.target === pacmanModal) {
-            pacmanModal.style.display = 'none';
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
         }
     });
 
     // ESC 키로 모달 닫기
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && pacmanModal.style.display === 'block') {
-            pacmanModal.style.display = 'none';
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.modal[style*="block"]');
+            if (openModal) {
+                openModal.style.display = 'none';
+            }
         }
     });
 
