@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>체스 게임</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>체스 게임</h1>
+            <div class="game-info">
+                <div class="status" id="game-status">게임 준비</div>
+                <div class="timer" id="timer">00:00</div>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-area">
+                <div class="board-container">
+                    <div class="coordinates coordinates-top">
+                        <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+                </div>
+                    <div class="board-wrapper">
+                        <div class="coordinates coordinates-left">
+                            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+                        <div class="chessboard" id="chessboard"></div>
+                        <div class="coordinates coordinates-right">
+                            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                </div>
+                </div>
+                    <div class="coordinates coordinates-bottom">
+                        <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+            </div>
+        </div>
+
+                <div class="controls">
+                    <div class="game-modes">
+                        <button class="btn" id="local-btn">로컬 2인</button>
+                        <button class="btn" id="ai-btn">AI 대전</button>
+                        <button class="btn" id="online-btn">온라인 플레이</button>
+                        <button class="btn" id="puzzle-btn">퍼즐</button>
+                        <button class="btn" id="tactics-btn">전술</button>
+            </div>
+                    
+                    <div class="puzzle-info-main" id="puzzle-info-main" style="display: none;"></div>
+
+                    <div class="online-panel" id="online-panel" style="display: none;">
+                        <div class="input-group">
+                            <input type="text" id="player-name" placeholder="플레이어 이름" value="Player">
+                            <input type="text" id="room-id" placeholder="방 ID (비워두면 자동 매칭)">
+            </div>
+                        <div class="online-buttons">
+                            <button class="btn" id="create-room-btn">방 만들기</button>
+                            <button class="btn" id="join-room-btn">방 참여</button>
+                            <button class="btn" id="random-match-btn">랜덤 매칭</button>
+            </div>
+                        <div class="connection-status">
+                            <span id="connection-status">연결 안됨</span>
+        </div>
+        </div>
+
+                    <div class="ai-panel" id="ai-panel" style="display: none;">
+                        <div class="difficulty-buttons">
+                            <button class="btn" data-difficulty="easy">초급</button>
+                            <button class="btn" data-difficulty="medium">중급</button>
+                            <button class="btn" data-difficulty="hard">고급</button>
+                            <button class="btn" data-difficulty="expert">전문가</button>
+        </div>
+                        <div class="ai-controls">
+                            <button class="btn" id="train-ai-btn">AI 학습</button>
+                            <button class="btn" id="ai-analysis-btn">AI 분석</button>
+    </div>
+                    </div>
+
+                    <div class="puzzle-panel" id="puzzle-panel" style="display: none;">
+                        <div class="puzzle-buttons">
+                            <button class="btn" data-puzzle="checkmate">체크메이트</button>
+                            <button class="btn" data-puzzle="tactics">전술</button>
+                            <button class="btn" data-puzzle="endgame">엔드게임</button>
+                        </div>
+                        <div class="puzzle-controls">
+                            <button class="btn" id="hint-btn">힌트</button>
+                            <button class="btn" id="solution-btn">해답</button>
+                            <button class="btn" id="ai-help-btn">AI 도움</button>
+                        </div>
+                        <div class="puzzle-info" id="puzzle-info" style="display: none;"></div>
+                    </div>
+
+                    <div class="tactics-panel" id="tactics-panel" style="display: none;">
+                        <div class="tactics-buttons">
+                            <button class="btn" data-tactic="fork">포크</button>
+                            <button class="btn" data-tactic="pin">핀</button>
+                            <button class="btn" data-tactic="skewer">스큐어</button>
+                            <button class="btn" data-tactic="discovered">발견 공격</button>
+                            <button class="btn" data-tactic="desperado">데스페라도</button>
+                            <button class="btn" data-tactic="overloading">과부하</button>
+                            <button class="btn" data-tactic="xray">X레이 공격</button>
+                            <button class="btn" data-tactic="interference">간섭</button>
+                            <button class="btn" data-tactic="zugzwang">추크츠방</button>
+                            <button class="btn" data-tactic="intermezzo">사잇수</button>
+                            <button class="btn" data-tactic="opposition">오포지션</button>
+                            <button class="btn" data-tactic="clearance">정리 희생</button>
+                            <button class="btn" data-tactic="trapping">트래핑</button>
+                            <button class="btn" data-tactic="swindle">속임수</button>
+                        </div>
+                        <div class="tactics-controls">
+                            <button class="btn" id="analyze-tactic-btn">전술 분석</button>
+                            <button class="btn" id="show-tactic-btn">전술 표시</button>
+                            <button class="btn" id="practice-tactic-btn">전술 연습</button>
+                        </div>
+                    </div>
+
+                    <div class="game-controls">
+                        <button class="btn" id="reset-btn">새 게임</button>
+                        <button class="btn" id="undo-btn">되돌리기</button>
+                        <button class="btn" id="settings-btn">설정</button>
+                    </div>
+
+                    <div class="time-controls">
+                        <button class="btn" data-time="blitz">블리츠 (5분)</button>
+                        <button class="btn" data-time="rapid">래피드 (10분)</button>
+                        <button class="btn" data-time="classical">클래식 (15분)</button>
+                        <button class="btn" data-time="no-limit">무제한</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="move-history">
+                    <h3>이동 기록</h3>
+                    <div id="move-history"></div>
+                </div>
+
+                <div class="captured-pieces">
+                    <h3>잡은 말</h3>
+                    <div class="captured-white" id="captured-white"></div>
+                    <div class="captured-black" id="captured-black"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 설정 패널 -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <h2>설정</h2>
+            <button class="close-btn" id="settings-close-btn">&times;</button>
+        </div>
+        <div class="settings-content">
+            <div class="settings-tabs">
+                <button class="tab-btn active" data-tab="general">일반</button>
+                <button class="tab-btn" data-tab="appearance">외관</button>
+                <button class="tab-btn" data-tab="gameplay">게임플레이</button>
+            </div>
+            
+            <div class="settings-body">
+                <div id="general-settings" class="settings-section active">
+                    <div class="setting-item">
+                        <label for="language-select">언어:</label>
+                        <select id="language-select">
+                            <option value="ko">한국어</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="sound-toggle">사운드:</label>
+                        <input type="checkbox" id="sound-toggle" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="auto-save-toggle">자동 저장:</label>
+                        <input type="checkbox" id="auto-save-toggle" checked>
+                    </div>
+                </div>
+                
+                <div id="appearance-settings" class="settings-section">
+                    <div class="setting-item">
+                        <label for="theme-select">테마:</label>
+                        <select id="theme-select">
+                            <option value="classic">클래식</option>
+                            <option value="modern">모던</option>
+                            <option value="dark">다크</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="animation-toggle">애니메이션:</label>
+                        <input type="checkbox" id="animation-toggle" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="board-size">보드 크기:</label>
+                        <select id="board-size">
+                            <option value="normal">보통</option>
+                            <option value="large">크게</option>
+                            <option value="small">작게</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="gameplay-settings" class="settings-section">
+                    <div class="setting-item">
+                        <label for="highlight-moves">이동 하이라이트:</label>
+                        <input type="checkbox" id="highlight-moves" checked>
+                                </div>
+                    <div class="setting-item">
+                        <label for="show-coordinates">좌표 표시:</label>
+                        <input type="checkbox" id="show-coordinates" checked>
+                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
+        
+                   
