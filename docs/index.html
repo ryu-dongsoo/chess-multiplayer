@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>체스 온라인 대전!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♔ 체스 온라인 대전 ♔</h1>
+            <p>실시간으로 상대방과 체스를 즐겨보세요!</p>
+        </div>
+
+        <div class="game-modes">
+            <button class="mode-btn active" onclick="startOnlineMode()">온라인 대전</button>
+            <button class="mode-btn" onclick="startLocalMode()">로컬 대전</button>
+            <button class="mode-btn" onclick="startAIMode()">AI 대전</button>
+        </div>
+
+        <div class="game-info">
+            <div class="player-info">
+                <span id="current-player">현재 플레이어: 흰색</span>
+            </div>
+            <div class="game-status">
+                <span id="game-status">게임 준비 중...</span>
+            </div>
+            <div class="timer">
+                <span id="timer">시간: 00:00</span>
+            </div>
+        </div>
+
+        <div class="board-container">
+            <div class="chessboard" id="chessboard">
+                <!-- 체스보드가 여기에 생성됩니다 -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="new-game-btn" onclick="newGame()">새 게임</button>
+            <button id="reset-btn" onclick="resetGame()">리셋</button>
+            <button id="undo-btn" onclick="undoMove()">되돌리기</button>
+        </div>
+
+        <div class="connection-status">
+            <span id="connection-status">연결 상태: 대기 중...</span>
+        </div>
+
+        <div class="room-info">
+            <input type="text" id="room-id" placeholder="방 ID를 입력하세요" value="">
+            <input type="text" id="player-name" placeholder="플레이어 이름" value="Player">
+            <button onclick="joinRoom()">방 입장</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
