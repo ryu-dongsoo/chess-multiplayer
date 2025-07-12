@@ -4515,56 +4515,35 @@ document.addEventListener('DOMContentLoaded', () => {
     window.chessGame = game; // HTML onclick 이벤트용
 }); 
 
-// 이스터에그 모달 기능
+// 팩맨 게임 기능
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('easterEggModal');
-    const privacyModal = document.getElementById('privacyModal');
-    const termsModal = document.getElementById('termsModal');
     const pacmanModal = document.getElementById('pacmanModal');
-    const closeBtns = document.querySelectorAll('.close');
-    const easterEggLinks = document.querySelectorAll('.easter-egg-link');
+    const pacmanLink = document.getElementById('pacmanLink');
+    const closeBtn = document.querySelector('.close');
 
-    // 이스터에그 링크 클릭 이벤트
-    easterEggLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const linkText = this.textContent.trim();
-            
-            if (linkText === '개인정보 처리방침') {
-                privacyModal.style.display = 'block';
-            } else if (linkText === '이용약관') {
-                termsModal.style.display = 'block';
-            } else if (linkText === '고객센터') {
-                pacmanModal.style.display = 'block';
-                initPacmanGame();
-            } else {
-                modal.style.display = 'block';
-            }
-        });
+    // 팩맨 링크 클릭 이벤트
+    pacmanLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        pacmanModal.style.display = 'block';
+        initPacmanGame();
     });
 
-    // 모달 닫기 버튼들
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            modal.style.display = 'none';
-        });
+    // 모달 닫기 버튼
+    closeBtn.addEventListener('click', function() {
+        pacmanModal.style.display = 'none';
     });
 
     // 모달 외부 클릭시 닫기
     window.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            e.target.style.display = 'none';
+        if (e.target === pacmanModal) {
+            pacmanModal.style.display = 'none';
         }
     });
 
     // ESC 키로 모달 닫기
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const openModal = document.querySelector('.modal[style*="block"]');
-            if (openModal) {
-                openModal.style.display = 'none';
-            }
+        if (e.key === 'Escape' && pacmanModal.style.display === 'block') {
+            pacmanModal.style.display = 'none';
         }
     });
 
