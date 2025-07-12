@@ -301,6 +301,12 @@ class ChessGame {
     }
 
     isValidMove(fromRow, fromCol, toRow, toCol, board = this.board) {
+        // 안전성 검사 추가
+        if (!board || fromRow < 0 || fromRow >= 8 || fromCol < 0 || fromCol >= 8 || 
+            toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
+            return false;
+        }
+        
         const piece = board[fromRow][fromCol];
         const targetPiece = board[toRow][toCol];
         
@@ -1493,9 +1499,14 @@ class ChessGame {
     getAllValidMoves(color) {
         const moves = [];
         
+        // 안전성 검사 추가
+        if (!this.board) {
+            return moves;
+        }
+        
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
-                const piece = this.board[row][col];
+                const piece = this.board[row] ? this.board[row][col] : null;
                 if (piece && this.isPieceOfColor(piece, color)) {
                     for (let toRow = 0; toRow < 8; toRow++) {
                         for (let toCol = 0; toCol < 8; toCol++) {
@@ -1503,7 +1514,7 @@ class ChessGame {
                             if (row === toRow && col === toCol) continue;
                             
                             // 목적지에 같은 색의 말이 있는지 확인
-                            const targetPiece = this.board[toRow][toCol];
+                            const targetPiece = this.board[toRow] ? this.board[toRow][toCol] : null;
                             if (targetPiece && this.isPieceOfColor(targetPiece, color)) {
                                 continue; // 같은 색의 말은 잡을 수 없음
                             }
@@ -1574,18 +1585,28 @@ class ChessGame {
     }
 
     isKingInCheck(color, board = this.board) {
+        // 안전성 검사 추가
+        if (!board) {
+            return false;
+        }
+        
         // 킹의 위치 찾기
         let kingRow, kingCol;
         const kingPiece = color === 'white' ? '♔' : '♚';
         
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
-                if (board[row][col] === kingPiece) {
+                if (board[row] && board[row][col] === kingPiece) {
                     kingRow = row;
                     kingCol = col;
                     break;
                 }
             }
+        }
+        
+        // 킹을 찾지 못한 경우
+        if (kingRow === undefined || kingCol === undefined) {
+            return false;
         }
         
         // 상대방 말들이 킹을 공격할 수 있는지 확인
@@ -1635,10 +1656,15 @@ class ChessGame {
     }
 
     evaluateMove(move) {
-            let score = 0;
-            
+        let score = 0;
+        
+        // 안전성 검사 추가
+        if (!this.board || !move || !move.to || !move.from) {
+            return score;
+        }
+        
         // 말 잡기
-        const capturedPiece = this.board[move.to.row][move.to.col];
+        const capturedPiece = this.board[move.to.row] ? this.board[move.to.row][move.to.col] : null;
         if (capturedPiece) {
             score += this.getPieceValue(capturedPiece) * 10;
         }
