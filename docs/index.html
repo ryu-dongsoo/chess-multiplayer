@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>체스 게임</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♔</text></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -207,6 +208,71 @@
                         <label for="show-coordinates">좌표 표시:</label>
                         <input type="checkbox" id="show-coordinates" checked>
                             </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 하단 정보 -->
+    <div class="footer-info">
+        <div class="creator-box">도준이가 만듦</div>
+        <div class="footer-links">
+            <a href="#" class="easter-egg-link">개인정보 처리방침</a> | 
+            <a href="#" class="easter-egg-link">이용약관</a> | 
+            <a href="#" class="easter-egg-link">고객센터</a>
+        </div>
+    </div>
+
+    <!-- 이스터에그 모달 -->
+    <div id="easterEggModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🎉 Easter Egg!! 🎉</h2>
+            <div class="easter-egg-content">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%23FFD700'/><text x='100' y='110' text-anchor='middle' font-size='60'>🥚</text></svg>" alt="Easter Egg" class="easter-egg-image">
+                <p>축하합니다! 이스터에그를 발견하셨네요! 🎊</p>
+                <p>도준이가 만든 체스 게임을 즐겨주셔서 감사합니다! ♟️</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 개인정보 처리방침 모달 -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🔒 개인정보 처리방침</h2>
+            <div class="easter-egg-content">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%234A90E2'/><text x='100' y='110' text-anchor='middle' font-size='60'>🔒</text></svg>" alt="Privacy" class="easter-egg-image">
+                <p>개인정보는 안전하게 보호됩니다! 🛡️</p>
+                <p>체스 게임에서는 개인정보를 수집하지 않습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이용약관 모달 -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>📋 이용약관</h2>
+            <div class="easter-egg-content">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%2352C41A'/><text x='100' y='110' text-anchor='middle' font-size='60'>📋</text></svg>" alt="Terms" class="easter-egg-image">
+                <p>재미있게 즐겨주세요!! 🎮</p>
+                <p>체스 게임을 마음껏 즐겨보세요! ♟️</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 고객센터 팩맨 게임 모달 -->
+    <div id="pacmanModal" class="modal">
+        <div class="modal-content pacman-modal">
+            <span class="close">&times;</span>
+            <h2>👾 팩맨 미니게임</h2>
+            <div class="pacman-game">
+                <canvas id="pacmanCanvas" width="400" height="300"></canvas>
+                <div class="game-controls">
+                    <p>방향키로 팩맨을 조작하세요!</p>
+                    <p>점수: <span id="pacmanScore">0</span></p>
+                    <button id="restartPacman">다시 시작</button>
                 </div>
             </div>
         </div>

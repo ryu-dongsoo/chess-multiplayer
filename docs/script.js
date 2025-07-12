@@ -4514,3 +4514,219 @@ document.addEventListener('DOMContentLoaded', () => {
     window.game = game; // 전역 접근용
     window.chessGame = game; // HTML onclick 이벤트용
 }); 
+
+// 이스터에그 모달 기능
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('easterEggModal');
+    const privacyModal = document.getElementById('privacyModal');
+    const termsModal = document.getElementById('termsModal');
+    const pacmanModal = document.getElementById('pacmanModal');
+    const closeBtns = document.querySelectorAll('.close');
+    const easterEggLinks = document.querySelectorAll('.easter-egg-link');
+
+    // 이스터에그 링크 클릭 이벤트
+    easterEggLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const linkText = this.textContent.trim();
+            
+            if (linkText === '개인정보 처리방침') {
+                privacyModal.style.display = 'block';
+            } else if (linkText === '이용약관') {
+                termsModal.style.display = 'block';
+            } else if (linkText === '고객센터') {
+                pacmanModal.style.display = 'block';
+                initPacmanGame();
+            } else {
+                modal.style.display = 'block';
+            }
+        });
+    });
+
+    // 모달 닫기 버튼들
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+
+    // 모달 외부 클릭시 닫기
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+        }
+    });
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.modal[style*="block"]');
+            if (openModal) {
+                openModal.style.display = 'none';
+            }
+        }
+    });
+
+    // 팩맨 게임 초기화
+    function initPacmanGame() {
+        const canvas = document.getElementById('pacmanCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('pacmanScore');
+        const restartBtn = document.getElementById('restartPacman');
+        
+        let score = 0;
+        let gameRunning = false;
+        let pacman = { x: 200, y: 150, size: 10, direction: 0 };
+        let dots = [];
+        let ghosts = [];
+        
+        // 점들 생성
+        function createDots() {
+            dots = [];
+            for (let i = 0; i < 20; i++) {
+                dots.push({
+                    x: Math.random() * 380 + 10,
+                    y: Math.random() * 280 + 10,
+                    size: 3
+                });
+            }
+        }
+        
+        // 유령 생성
+        function createGhosts() {
+            ghosts = [];
+            for (let i = 0; i < 3; i++) {
+                ghosts.push({
+                    x: Math.random() * 380 + 10,
+                    y: Math.random() * 280 + 10,
+                    size: 8,
+                    dx: (Math.random() - 0.5) * 2,
+                    dy: (Math.random() - 0.5) * 2
+                });
+            }
+        }
+        
+        // 게임 그리기
+        function drawGame() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, 400, 300);
+            
+            // 팩맨 그리기
+            ctx.fillStyle = '#FFFF00';
+            ctx.beginPath();
+            ctx.arc(pacman.x, pacman.y, pacman.size, pacman.direction * 0.2, (2 - pacman.direction) * Math.PI);
+            ctx.lineTo(pacman.x, pacman.y);
+            ctx.fill();
+            
+            // 점들 그리기
+            ctx.fillStyle = '#FFFFFF';
+            dots.forEach(dot => {
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // 유령들 그리기
+            ctx.fillStyle = '#FF0000';
+            ghosts.forEach(ghost => {
+                ctx.beginPath();
+                ctx.arc(ghost.x, ghost.y, ghost.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        // 충돌 감지
+        function checkCollisions() {
+            // 점 먹기
+            dots = dots.filter(dot => {
+                const distance = Math.sqrt((pacman.x - dot.x) ** 2 + (pacman.y - dot.y) ** 2);
+                if (distance < pacman.size + dot.size) {
+                    score += 10;
+                    scoreElement.textContent = score;
+                    return false;
+                }
+                return true;
+            });
+            
+            // 유령과 충돌
+            ghosts.forEach(ghost => {
+                const distance = Math.sqrt((pacman.x - ghost.x) ** 2 + (pacman.y - ghost.y) ** 2);
+                if (distance < pacman.size + ghost.size) {
+                    gameRunning = false;
+                    alert('게임 오버! 점수: ' + score);
+                }
+            });
+        }
+        
+        // 유령 이동
+        function moveGhosts() {
+            ghosts.forEach(ghost => {
+                ghost.x += ghost.dx;
+                ghost.y += ghost.dy;
+                
+                if (ghost.x < 0 || ghost.x > 400) ghost.dx *= -1;
+                if (ghost.y < 0 || ghost.y > 300) ghost.dy *= -1;
+            });
+        }
+        
+        // 게임 루프
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            drawGame();
+            checkCollisions();
+            moveGhosts();
+            
+            if (dots.length === 0) {
+                gameRunning = false;
+                alert('축하합니다! 모든 점을 먹었습니다! 점수: ' + score);
+            } else {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // 키보드 이벤트
+        document.addEventListener('keydown', function(e) {
+            if (!gameRunning) return;
+            
+            const speed = 5;
+            switch(e.key) {
+                case 'ArrowUp':
+                    pacman.y = Math.max(pacman.size, pacman.y - speed);
+                    pacman.direction = 1.5;
+                    break;
+                case 'ArrowDown':
+                    pacman.y = Math.min(300 - pacman.size, pacman.y + speed);
+                    pacman.direction = 0.5;
+                    break;
+                case 'ArrowLeft':
+                    pacman.x = Math.max(pacman.size, pacman.x - speed);
+                    pacman.direction = 1;
+                    break;
+                case 'ArrowRight':
+                    pacman.x = Math.min(400 - pacman.size, pacman.x + speed);
+                    pacman.direction = 0;
+                    break;
+            }
+        });
+        
+        // 다시 시작 버튼
+        restartBtn.addEventListener('click', function() {
+            score = 0;
+            scoreElement.textContent = score;
+            pacman.x = 200;
+            pacman.y = 150;
+            createDots();
+            createGhosts();
+            gameRunning = true;
+            gameLoop();
+        });
+        
+        // 초기 게임 시작
+        createDots();
+        createGhosts();
+        gameRunning = true;
+        gameLoop();
+    }
+}); 
