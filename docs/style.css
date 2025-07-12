@@ -837,12 +837,14 @@ main {
     font-size: 16px;
 }
 
-.pacman-modal .modal-content {
-    max-width: 800px;
+.mario-modal .modal-content {
+    max-width: 90vw;
+    max-height: 90vh;
     padding: 20px;
+    overflow: auto;
 }
 
-.pacman-game {
+.mario-game {
     text-align: center;
 }
 
@@ -935,6 +937,8 @@ main {
     margin: 10px auto;
     display: block;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    max-width: 100%;
+    height: auto;
 }
 
 .game-controls {

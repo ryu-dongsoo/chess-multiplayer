@@ -2871,21 +2871,23 @@ class ChessGame {
             players: [playerName],
             gameState: this.board,
             currentPlayer: 'white',
-            status: 'waiting'
+            status: 'waiting',
+            playerColors: { [playerName]: 'white' } // 첫 번째 플레이어는 흰색
         };
 
         // GitHub API를 통해 Issue 생성 (실제로는 localStorage 사용)
         const gameKey = `chess_game_${roomId}`;
         localStorage.setItem(gameKey, JSON.stringify(gameData));
         
-        console.log(`게임 방 생성: ${roomId}`);
+        console.log(`게임 방 생성: ${roomId}, 플레이어: ${playerName} (흰색)`);
+        this.playerColor = 'white';
     }
 
     startPolling() {
-        // 2초마다 게임 상태 확인
+        // 1초마다 게임 상태 확인 (더 빠른 응답을 위해)
         this.pollInterval = setInterval(() => {
             this.checkGameUpdates();
-        }, 2000);
+        }, 1000);
     }
 
     checkGameUpdates() {
@@ -2896,6 +2898,17 @@ class ChessGame {
         
         if (gameData) {
             const game = JSON.parse(gameData);
+            
+            // 플레이어 색상 할당 확인
+            if (game.playerColors && !game.playerColors[this.playerName]) {
+                // 두 번째 플레이어는 검은색으로 할당
+                game.playerColors[this.playerName] = 'black';
+                game.players.push(this.playerName);
+                game.status = 'playing';
+                localStorage.setItem(gameKey, JSON.stringify(game));
+                this.playerColor = 'black';
+                console.log(`플레이어 색상 할당: ${this.playerName} (검은색)`);
+            }
             
             // 게임 상태가 변경되었는지 확인
             if (JSON.stringify(game.gameState) !== JSON.stringify(this.board)) {
@@ -2938,7 +2951,7 @@ class ChessGame {
             // 업데이트된 게임 상태 저장
             localStorage.setItem(gameKey, JSON.stringify(game));
             
-            console.log('이동 전송됨:', { fromRow, fromCol, toRow, toCol });
+            console.log('이동 전송됨:', { fromRow, fromCol, toRow, toCol, piece });
         }
     }
 
@@ -4536,19 +4549,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const privacyModal = document.getElementById('privacyModal');
     const termsModal = document.getElementById('termsModal');
-    const pacmanModal = document.getElementById('pacmanModal');
+    const marioModal = document.getElementById('marioModal');
     const privacyLink = document.getElementById('privacyLink');
     const termsLink = document.getElementById('termsLink');
-    const pacmanLink = document.getElementById('pacmanLink');
+    const marioLink = document.getElementById('marioLink');
     const closeBtns = document.querySelectorAll('.close');
 
     console.log('Elements found:', {
         privacyModal: !!privacyModal,
         termsModal: !!termsModal,
-        pacmanModal: !!pacmanModal,
+        marioModal: !!marioModal,
         privacyLink: !!privacyLink,
         termsLink: !!termsLink,
-        pacmanLink: !!pacmanLink
+        marioLink: !!marioLink
     });
 
     // 개인정보 처리방침 링크 클릭 이벤트
@@ -4573,13 +4586,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 팩맨 링크 클릭 이벤트
-    if (pacmanLink) {
-        pacmanLink.addEventListener('click', function(e) {
+    // 마리오 링크 클릭 이벤트
+    if (marioLink) {
+        marioLink.addEventListener('click', function(e) {
             e.preventDefault();
             console.log('Mario link clicked');
-            if (pacmanModal) {
-                pacmanModal.style.display = 'block';
+            if (marioModal) {
+                marioModal.style.display = 'block';
                 initMarioGame();
             }
         });
