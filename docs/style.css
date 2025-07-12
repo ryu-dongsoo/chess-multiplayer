@@ -734,6 +734,8 @@ main {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    top: auto;
+    left: auto;
     text-align: right;
     z-index: 9999;
     max-width: 180px;
@@ -746,7 +748,7 @@ main {
 
 .creator-box {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    color: #000;
     padding: 6px 12px;
     border-radius: 15px;
     font-weight: bold;
@@ -836,7 +838,7 @@ main {
 }
 
 .pacman-modal .modal-content {
-    max-width: 600px;
+    max-width: 800px;
     padding: 20px;
 }
 
@@ -891,4 +893,79 @@ main {
         transform: translateY(0);
         opacity: 1;
     }
+} 
+
+.mario-modal .modal-content {
+    max-width: 1000px;
+    padding: 20px;
+}
+
+.mario-game {
+    text-align: center;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.game-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.power-ups {
+    display: flex;
+    gap: 20px;
+}
+
+.game-stats span, .power-ups span {
+    color: #333;
+}
+
+#marioCanvas {
+    border: 3px solid #333;
+    background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+    margin: 10px auto;
+    display: block;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.game-controls {
+    margin-top: 15px;
+}
+
+.game-controls p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+#restartMario, #nextStage {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+}
+
+#restartMario:hover, #nextStage:hover {
+    background: #45a049;
+}
+
+#nextStage {
+    background: #2196F3;
+}
+
+#nextStage:hover {
+    background: #1976D2;
 } 
