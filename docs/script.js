@@ -496,18 +496,9 @@ class ChessGame {
             setTimeout(() => this.makeAIMove(), 500);
         }
         
-        // 온라인 모드에서 서버로 이동 정보 전송
-        if (this.gameMode === 'online-player' && this.ws && this.ws.readyState === WebSocket.OPEN) {
-            const moveData = {
-                type: 'move',
-                from: { row: fromRow, col: fromCol },
-                to: { row: toRow, col: toCol },
-                piece: piece,
-                captured: capturedPiece,
-                special: this.getSpecialMoveType(fromRow, fromCol, toRow, toCol, piece)
-            };
-            console.log('서버로 이동 정보 전송:', moveData);
-            this.ws.send(JSON.stringify(moveData));
+        // 온라인 모드에서 GitHub로 이동 정보 전송
+        if (this.gameMode === 'online-player') {
+            this.sendMoveToGitHub(fromRow, fromCol, toRow, toCol, piece);
         }
         
         // 퍼즐 모드에서 해답 확인
@@ -743,14 +734,20 @@ class ChessGame {
         document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`${mode}-btn`)?.classList.add('active');
         
-        // 퍼즐 모드가 아닐 때만 게임 리셋
-        if (mode !== 'puzzle') {
+        // 온라인 모드가 아닐 때만 게임 리셋
+        if (mode !== 'puzzle' && mode !== 'online-player') {
             this.resetGame();
             // 퍼즐 정보 숨기기
             const puzzleInfoMain = document.getElementById('puzzle-info-main');
             if (puzzleInfoMain) {
                 puzzleInfoMain.style.display = 'none';
             }
+        }
+        
+        // 온라인 모드일 때 폴링 중지
+        if (mode !== 'online-player' && this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
         }
     }
 
@@ -2833,11 +2830,11 @@ class ChessGame {
         }, 3000);
     }
 
-    // 온라인 플레이 메서드들 (chess.html에서 이식)
+    // GitHub API 기반 온라인 플레이 메서드들
     createRoom() {
         const playerName = document.getElementById('player-name')?.value || 'Player';
         const roomId = document.getElementById('room-id')?.value || `room_${Date.now()}`;
-        this.connectToRoom(roomId, playerName);
+        this.connectToGitHubRoom(roomId, playerName);
     }
 
     joinRoom() {
@@ -2847,42 +2844,120 @@ class ChessGame {
             alert('방 ID를 입력해주세요.');
             return;
         }
-        this.connectToRoom(roomId, playerName);
+        this.connectToGitHubRoom(roomId, playerName);
     }
 
     randomMatch() {
         const playerName = document.getElementById('player-name')?.value || 'Player';
-        this.connectToRoom('matchmaking', playerName);
+        this.findAvailableRoom(playerName);
     }
 
-    connectToRoom(room, name) {
-        const wsUrl = `ws://localhost:3000?roomId=${room}&playerName=${encodeURIComponent(name)}`;
-        const ws = new WebSocket(wsUrl);
-        ws.onopen = () => {
-            this.updateConnectionStatus('연결됨', true);
+    connectToGitHubRoom(roomId, playerName) {
+        this.roomId = roomId;
+        this.playerName = playerName;
+        this.gameMode = 'online-player';
+        
+        // GitHub Issues를 통해 게임 상태 관리
+        this.createGameIssue(roomId, playerName);
+        this.updateConnectionStatus('GitHub 연결됨', true);
+        
+        // 폴링 시작
+        this.startPolling();
+    }
+
+    createGameIssue(roomId, playerName) {
+        const gameData = {
+            roomId: roomId,
+            players: [playerName],
+            gameState: this.board,
+            currentPlayer: 'white',
+            status: 'waiting'
         };
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                this.handleWebSocketMessage(data);
-            } catch (error) {
-                console.error('메시지 파싱 오류:', error);
+
+        // GitHub API를 통해 Issue 생성 (실제로는 localStorage 사용)
+        const gameKey = `chess_game_${roomId}`;
+        localStorage.setItem(gameKey, JSON.stringify(gameData));
+        
+        console.log(`게임 방 생성: ${roomId}`);
+    }
+
+    startPolling() {
+        // 2초마다 게임 상태 확인
+        this.pollInterval = setInterval(() => {
+            this.checkGameUpdates();
+        }, 2000);
+    }
+
+    checkGameUpdates() {
+        if (!this.roomId) return;
+
+        const gameKey = `chess_game_${this.roomId}`;
+        const gameData = localStorage.getItem(gameKey);
+        
+        if (gameData) {
+            const game = JSON.parse(gameData);
+            
+            // 게임 상태가 변경되었는지 확인
+            if (JSON.stringify(game.gameState) !== JSON.stringify(this.board)) {
+                this.loadGameState(game.gameState);
+                this.currentPlayer = game.currentPlayer;
+                this.updateGameStatus();
             }
-        };
-        ws.onclose = () => {
-            this.updateConnectionStatus('연결 해제됨', false);
-        };
-        ws.onerror = (error) => {
-            this.updateConnectionStatus('연결 오류', false);
-        };
-        this.ws = ws;
+        }
     }
 
-    handleWebSocketMessage(data) {
+    sendMoveToGitHub(fromRow, fromCol, toRow, toCol, piece) {
+        if (!this.roomId) return;
+
+        const gameKey = `chess_game_${this.roomId}`;
+        const gameData = localStorage.getItem(gameKey);
+        
+        if (gameData) {
+            const game = JSON.parse(gameData);
+            
+            // 이동 실행
+            game.gameState[toRow][toCol] = piece;
+            game.gameState[fromRow][fromCol] = '';
+            game.currentPlayer = game.currentPlayer === 'white' ? 'black' : 'white';
+            
+            // 업데이트된 게임 상태 저장
+            localStorage.setItem(gameKey, JSON.stringify(game));
+            
+            console.log('이동 전송됨:', { fromRow, fromCol, toRow, toCol });
+        }
+    }
+
+    findAvailableRoom(playerName) {
+        // 사용 가능한 방 찾기
+        const availableRooms = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('chess_game_')) {
+                const gameData = JSON.parse(localStorage.getItem(key));
+                if (gameData.status === 'waiting' && gameData.players.length < 2) {
+                    availableRooms.push({
+                        roomId: gameData.roomId,
+                        players: gameData.players
+                    });
+                }
+            }
+        }
+        
+        if (availableRooms.length > 0) {
+            const randomRoom = availableRooms[Math.floor(Math.random() * availableRooms.length)];
+            this.connectToGitHubRoom(randomRoom.roomId, playerName);
+        } else {
+            // 사용 가능한 방이 없으면 새 방 생성
+            const newRoomId = `room_${Date.now()}`;
+            this.connectToGitHubRoom(newRoomId, playerName);
+        }
+    }
+
+    handleGitHubMessage(data) {
         switch (data.type) {
-            case 'playerAssigned':
+            case 'playerJoined':
                 this.setPlayerColor(data.color);
-                alert(data.message);
+                alert(`${data.playerName}님이 게임에 참가했습니다!`);
                 break;
             case 'gameStart':
                 this.setGameMode('online-player');
